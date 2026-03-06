@@ -3,6 +3,8 @@ package com.example.studentmanagement.controller;
 import com.example.studentmanagement.entity.Student;
 import com.example.studentmanagement.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +25,8 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Student>> getAllStudents() {
-        List<Student> students = studentService.getAllStudents();
+    public ResponseEntity<Page<Student>> getAllStudents(Pageable pageable) {
+        Page<Student> students = studentService.getAllStudents(pageable);
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
