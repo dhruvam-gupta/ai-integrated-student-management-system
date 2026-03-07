@@ -32,9 +32,8 @@ public class StudentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
-        Optional<Student> student = studentService.getStudentById(id);
-        return student.map(s -> new ResponseEntity<>(s, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Student student = studentService.getStudentById(id);
+        return ResponseEntity.ok(student);
     }
 
     @PutMapping("/{id}")

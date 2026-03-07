@@ -1,8 +1,12 @@
 package com.example.studentmanagement.service;
 
 import com.example.studentmanagement.entity.Student;
+import com.example.studentmanagement.exception.ResourceNotFoundException;
 import com.example.studentmanagement.repository.StudentRepository;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,12 +21,12 @@ public class StudentService {
         return studentRepository.save(student);
     }
 
-    public Optional<Student> getStudentById(Long id) {
-        return studentRepository.findById(id);
+    public Student getStudentById(Long id) {
+        return studentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
     }
 
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+    public Page<Student> getAllStudents(Pageable pageable) {
+        return studentRepository.findAll(pageable);
     }
 
     public Student updateStudent(Long id, Student studentDetails) {
