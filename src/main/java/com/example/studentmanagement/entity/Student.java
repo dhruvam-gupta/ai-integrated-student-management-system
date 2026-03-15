@@ -27,8 +27,10 @@ public class Student {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "phone", nullable = true)
     private String phone;
 
+    @Column(name = "dob", nullable = false)
     private LocalDate dateOfBirth;
 
     private String major;
@@ -38,5 +40,6 @@ public class Student {
 
     private Double gpa;
 
-    private String status;
+    @Column(name = "is_active")
+    private boolean isActive;
 }

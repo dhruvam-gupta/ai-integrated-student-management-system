@@ -3,7 +3,7 @@ package com.example.studentmanagement.service;
 import com.example.studentmanagement.entity.Student;
 import com.example.studentmanagement.exception.ResourceNotFoundException;
 import com.example.studentmanagement.repository.StudentRepository;
-
+import org.springframework.ai.chat.model.ChatModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final ChatModel chatModel;
 
     public Student createStudent(Student student) {
         return studentRepository.save(student);
@@ -38,7 +39,7 @@ public class StudentService {
             student.setDateOfBirth(studentDetails.getDateOfBirth());
             student.setMajor(studentDetails.getMajor());
             student.setGpa(studentDetails.getGpa());
-            student.setStatus(studentDetails.getStatus());
+            student.setActive(studentDetails.isActive());
             return studentRepository.save(student);
         }).orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
     }
@@ -51,8 +52,8 @@ public class StudentService {
         return studentRepository.findByMajor(major);
     }
 
-    public List<Student> getStudentsByStatus(String status) {
-        return studentRepository.findByStatus(status);
+    public List<Student> getStudentsByIsActive(boolean isActive) {
+        return studentRepository.findByIsActive(isActive);
     }
 
     public Optional<Student> getStudentByEmail(String email) {
@@ -61,5 +62,12 @@ public class StudentService {
 
     public long getTotalStudents() {
         return studentRepository.count();
+    }
+    
+    public String generateStudentReport(Long id) {
+        Student student = getStudentById(id);
+        String prompt = "Generate a detailed academic report for student: " + student.getFirstName() + " " + student.getLastName() + 
+                       " with email: " + student.getEmail() + " and major: " + student.getMajor();
+        return chatModel.call(prompt);
     }
 }

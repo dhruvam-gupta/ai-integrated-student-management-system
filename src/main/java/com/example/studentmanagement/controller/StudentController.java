@@ -58,9 +58,9 @@ public class StudentController {
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Student>> getStudentsByStatus(@PathVariable String status) {
-        List<Student> students = studentService.getStudentsByStatus(status);
+    @GetMapping("/isActive/{isActive}")
+    public ResponseEntity<List<Student>> getStudentsByIsActive(@PathVariable boolean isActive) {
+        List<Student> students = studentService.getStudentsByIsActive(isActive);
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
@@ -75,5 +75,11 @@ public class StudentController {
     public ResponseEntity<Long> getTotalStudents() {
         long count = studentService.getTotalStudents();
         return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @GetMapping("/report/{id}")
+    public ResponseEntity<?> generateReport(@PathVariable Long id) {
+        String report = studentService.generateStudentReport(id);
+        return new ResponseEntity<>(report, HttpStatus.OK);
     }
 }

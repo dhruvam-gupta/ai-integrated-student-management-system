@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<Student, Long> {
     Optional<Student> findByEmail(String email);
     List<Student> findByMajor(String major);
-    List<Student> findByStatus(String status);
+    List<Student> findByIsActive(boolean isActive);
     Page<Student> findAll(Pageable pageable);
 }
