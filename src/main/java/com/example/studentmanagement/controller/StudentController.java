@@ -3,9 +3,12 @@ package com.example.studentmanagement.controller;
 import com.example.studentmanagement.entity.Student;
 import com.example.studentmanagement.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,6 +83,12 @@ public class StudentController {
     @GetMapping("/report/{id}")
     public ResponseEntity<?> generateReport(@PathVariable Long id) {
         String report = studentService.generateStudentReport(id);
+        return new ResponseEntity<>(report, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/streaming/report/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<?> generateStreamingReport(@PathVariable Long id) {
+        Flux<String> report = studentService.generateStreamingStudentReport(id);
         return new ResponseEntity<>(report, HttpStatus.OK);
     }
 }

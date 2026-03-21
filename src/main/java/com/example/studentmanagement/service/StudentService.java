@@ -4,7 +4,12 @@ import com.example.studentmanagement.entity.Student;
 import com.example.studentmanagement.exception.ResourceNotFoundException;
 import com.example.studentmanagement.repository.StudentRepository;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.StreamingChatModel;
+import org.springframework.ai.chat.prompt.Prompt;
+
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final StreamingChatModel streamingChatModel;
     private final ChatModel chatModel;
 
     public Student createStudent(Student student) {
@@ -69,5 +75,13 @@ public class StudentService {
         String prompt = "Generate a detailed academic report for student: " + student.getFirstName() + " " + student.getLastName() + 
                        " with email: " + student.getEmail() + " and major: " + student.getMajor();
         return chatModel.call(prompt);
+    }
+
+    public Flux<String> generateStreamingStudentReport(Long id) {
+        Student student = getStudentById(id);
+        String prompt = "Generate a detailed academic report for student: " + student.getFirstName() + " " + student.getLastName() + 
+                       " with email: " + student.getEmail() + " and major: " + student.getMajor();
+        return streamingChatModel.stream(new Prompt(prompt))
+        .mapNotNull(response -> response.getResult().getOutput().getText());
     }
 }
