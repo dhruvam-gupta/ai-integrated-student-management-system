@@ -3,6 +3,9 @@ package com.example.studentmanagement.service;
 import com.example.studentmanagement.entity.Student;
 import com.example.studentmanagement.exception.ResourceNotFoundException;
 import com.example.studentmanagement.repository.StudentRepository;
+
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.StreamingChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -23,6 +26,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StreamingChatModel streamingChatModel;
     private final ChatModel chatModel;
+    private final ChatClient chatClient;
 
     public Student createStudent(Student student) {
         return studentRepository.save(student);
@@ -83,5 +87,13 @@ public class StudentService {
                        " with email: " + student.getEmail() + " and major: " + student.getMajor();
         return streamingChatModel.stream(new Prompt(prompt))
         .mapNotNull(response -> response.getResult().getOutput().getText());
+    }
+
+    public String chat(String conversationId, String userMessage) {
+        return chatClient.prompt()
+            .user(userMessage)
+            .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
+            .call()
+            .content();
     }
 }

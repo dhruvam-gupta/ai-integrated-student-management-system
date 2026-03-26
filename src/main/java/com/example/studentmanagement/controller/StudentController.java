@@ -91,4 +91,11 @@ public class StudentController {
         Flux<String> report = studentService.generateStreamingStudentReport(id);
         return new ResponseEntity<>(report, HttpStatus.OK);
     }
+
+    //isolated chat based on concersationId without any context to student database
+    @PostMapping(value = "/chat")
+    public ResponseEntity<String> chat(@RequestParam String conversationId, @RequestBody String message) {
+        String response = studentService.chat(conversationId, message);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
