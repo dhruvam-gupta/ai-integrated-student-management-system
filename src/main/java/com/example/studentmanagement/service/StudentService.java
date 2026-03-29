@@ -126,8 +126,7 @@ public class StudentService {
     private Document toDocument(Student s) {
         return new Document(
             s.getId().toString(),
-            "Student " + s.getFirstName() + " " + s.getLastName() +
-            " studies " + s.getMajor(),
+            String.format("Student %s %s studies %s", s.getFirstName(), s.getLastName(), s.getMajor()),
             Map.of("studentId", s.getId()) // metadata
         );
     }
