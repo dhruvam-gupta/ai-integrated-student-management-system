@@ -9,6 +9,8 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.StreamingChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.VectorStore;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -18,18 +20,30 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StudentService {
     private final StudentRepository studentRepository;
     private final StreamingChatModel streamingChatModel;
     private final ChatModel chatModel;
     private final ChatClient chatClient;
+    private final VectorStore vectorStore;
 
+    //todo: this will keep all the student objects in vector store. This could take up a lot of memory if there are many students
+    //check on this further about which approach is better suggested here
     public Student createStudent(Student student) {
-        return studentRepository.save(student);
+         Student newStudent = studentRepository.save(student);
+         try {
+            vectorStore.add(List.of(toDocument(newStudent)));
+         } catch (Exception e) {
+            log.error("VectorStore add failed for student {}", newStudent.getId(), e);
+         }
+         return newStudent;
     }
 
     public Student getStudentById(Long id) {
@@ -50,12 +64,24 @@ public class StudentService {
             student.setMajor(studentDetails.getMajor());
             student.setGpa(studentDetails.getGpa());
             student.setActive(studentDetails.isActive());
-            return studentRepository.save(student);
+            Student updatedStudent =  studentRepository.save(student);
+            try {
+                vectorStore.delete(List.of(id.toString()));
+                vectorStore.add(List.of(toDocument(updatedStudent)));
+            } catch (Exception e) {
+                log.error("VectorStore update failed for student {}", id, e);
+            }
+            return updatedStudent;
         }).orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
     }
 
     public void deleteStudent(Long id) {
         studentRepository.deleteById(id);
+        try{
+            vectorStore.delete(List.of(id.toString()));
+        } catch (Exception e) {
+            log.error("VectorStore delete failed for student {}", id, e);
+        }
     }
 
     public List<Student> getStudentsByMajor(String major) {
@@ -95,5 +121,14 @@ public class StudentService {
             .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
             .call()
             .content();
+    }
+
+    private Document toDocument(Student s) {
+        return new Document(
+            s.getId().toString(),
+            "Student " + s.getFirstName() + " " + s.getLastName() +
+            " studies " + s.getMajor(),
+            Map.of("studentId", s.getId()) // metadata
+        );
     }
 }
