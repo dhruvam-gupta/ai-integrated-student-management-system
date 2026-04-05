@@ -12,8 +12,10 @@ import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
+import org.springframework.ai.openai.OpenAiEmbeddingOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +42,7 @@ public class Configuartions {
                 .baseUrl(openAiBaseUrl)
                 .apiKey(apiKey)
                 .completionsPath(openAiCompletionsPath)
+                .embeddingsPath("/embeddings")
                 .build();
     }
 
@@ -51,14 +54,15 @@ public class Configuartions {
     @Bean
     public ChatMemory chatMemory(ChatMemoryRepository chatMemoryRepository) {
         return MessageWindowChatMemory.builder()
-            .chatMemoryRepository(chatMemoryRepository)
-            .maxMessages(10) // to keep last 10 messages
-            .build();
+                .chatMemoryRepository(chatMemoryRepository)
+                .maxMessages(10) // to keep last 10 messages
+                .build();
     }
 
     @Bean
     public EmbeddingModel embeddingModel(OpenAiApi openAiApi) {
-        return new OpenAiEmbeddingModel(openAiApi);
+        return new OpenAiEmbeddingModel(openAiApi, MetadataMode.EMBED, 
+                OpenAiEmbeddingOptions.builder().model("gemini-embedding-2-preview").build());
     }
 
     @Bean

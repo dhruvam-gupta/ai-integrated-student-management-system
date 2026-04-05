@@ -3,7 +3,8 @@
 - Grade appeal must be submitted within 7 days of result
 - Students with GPA below 3.0 for 2 consecutive semesters will be on probation
 - Final year project is worth 10 credits
-- Computer Science major requires minimum 120 credits to graduate
+Q: How many credits to graduate CS?
+A: 120 credits minimum
 - Electonics major requires minimum 130 credits to graduate
 - Electrical major requires minimum 120 credits to graduate
 - Civil Engineering major requires minimum 110 credits to graduate
